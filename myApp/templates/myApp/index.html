@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container m-4">
+        <h2>Reserve an Appointment</h2>
+        <a href="{% url 'myApp:appointment_form' %} " class="btn btn-secondary">Get Appointment</a>
+    </div>
+{% endblock content %}
+    

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+    <div class="container m-4 text-center col-6">
+        <h2>Reserve an Appointment</h2>
+        <form action="" method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <button type="submit" class="btn btn-primary">Take</button>
+        </form>
+    </div>
+{% endblock content %}
+    
