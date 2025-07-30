@@ -2,11 +2,13 @@
 {% load django_bootstrap5 %}
 
 {% block content %}
-<h2>Create a new account</h2>
+<div class="container m-5">
+  <h2>Create a new account</h2>
 
-<form action="" method="post">
-  {% csrf_token %}
-  {% bootstrap_form form %}
-  <button type="submit" class="btn btn-outline-primary">Signup</button>
-</form>
+  <form action="" method="post">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <button type="submit" class="btn btn-outline-primary">Signup</button>
+  </form>
+</div>
 {% endblock content %}

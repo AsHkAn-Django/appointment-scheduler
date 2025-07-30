@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+    <div class="container m-4 text-center col-6">
+        <h2>List of your Appointments</h2>
+
+        {% for app in appointments %}
+          <div class="card text-start">
+            <div class="card-body">
+              <h4 class="card-title">Status: {{app.status}}</h4>
+              <p class="card-text">Date: {{app.date}}</p>
+              <p class="card-text">Time: {{app.time}}</p>
+              <p class="card-text">Detail: {{app.details}}</p>
+
+            </div>
+          </div>
+
+        {% endfor %}
+
+    </div>
+{% endblock content %}

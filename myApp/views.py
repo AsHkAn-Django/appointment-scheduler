@@ -9,8 +9,8 @@ from django.contrib import messages
 
 class IndexView(generic.TemplateView):
     template_name = "myApp/index.html"
-    
-    
+
+
 class AppointmentFormView(LoginRequiredMixin, generic.CreateView):
     model = Appointment
     template_name = "myApp/appointment_form.html"
@@ -22,9 +22,18 @@ class AppointmentFormView(LoginRequiredMixin, generic.CreateView):
         if Appointment.objects.filter(user=self.request.user, date=form.cleaned_data['date'], time=form.cleaned_data['time']).exists():
             messages.warning(self.request, 'You have already had an appointment at that date and time!')
             return redirect('myApp:home')
-        
+
         # If no conflict, save the appointment and show a success message
         form.instance.user = self.request.user
         messages.success(self.request, 'Your appointment has been reserved.')
         return super().form_valid(form)
-    
+
+
+
+class AppointmentListView(generic.ListView):
+    model = Appointment
+    template_name = "myApp/appointment_list.html"
+    context_object_name = 'appointments'
+
+    def get_queryset(self):
+        return Appointment.objects.filter(user=self.request.user)

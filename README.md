@@ -58,3 +58,4 @@ python manage.py runserver
 ## About Me
 Hi, I'm Ashkan — a junior Django developer transitioning from a background in teaching English as a second language.
 I'm currently focused on improving my backend skills and building practical web applications.
+****
