@@ -21,8 +21,8 @@ class AppointmentFormView(LoginRequiredMixin, generic.CreateView):
 
     def form_valid(self, form):
         # Check if there is already an appointment at the same date and time for the user
-        if Appointment.objects.filter(user=self.request.user, date=form.cleaned_data['date'], time=form.cleaned_data['time']).exists():
-            messages.warning(self.request, 'You have already had an appointment at that date and time!')
+        if Appointment.objects.filter(user=self.request.user, visited=False).exists():
+            messages.warning(self.request, 'You have already had an ongoing appointment!')
             return redirect('myApp:home')
 
         # If no conflict, save the appointment and show a success message
@@ -30,6 +30,11 @@ class AppointmentFormView(LoginRequiredMixin, generic.CreateView):
         messages.success(self.request, 'Your appointment has been reserved.')
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        if Appointment.objects.filter(user=self.request.user, visited=False).exists():
+            ctx['appointment'] = Appointment.objects.filter(user=self.request.user, visited=False).first()
+        return ctx
 
 class AppointmentListView(generic.ListView):
     model = Appointment
@@ -49,12 +54,10 @@ class AppointmentListJson(View):
         apps = Appointment.objects.filter(user=request.user)
         events = []
         for a in apps:
-            dt = datetime.combine(a.date, a.time)
-            title = f"{emoji} {a.status.capitalize()}"
             events.append({
                 'id': a.id,
-                'title': title,
-                'start': dt.isoformat(),
+                'title': a.details,
+                'start': a.date.isoformat(),
                 'allDay': False,
             })
         return JsonResponse(events, safe=False)
