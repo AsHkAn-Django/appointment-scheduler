@@ -1,10 +1,12 @@
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
-from django.views import generic
+from django.views import generic, View
 from .models import Appointment
 from .forms import AppointmentForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.http import JsonResponse
+from datetime import datetime
 
 
 class IndexView(generic.TemplateView):
@@ -29,7 +31,6 @@ class AppointmentFormView(LoginRequiredMixin, generic.CreateView):
         return super().form_valid(form)
 
 
-
 class AppointmentListView(generic.ListView):
     model = Appointment
     template_name = "myApp/appointment_list.html"
@@ -37,3 +38,34 @@ class AppointmentListView(generic.ListView):
 
     def get_queryset(self):
         return Appointment.objects.filter(user=self.request.user)
+
+
+class AppointmentListJson(View):
+    """Returns all apps in JSON format suitable for FullCalendar."""
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse([], safe=False)
+
+        apps = Appointment.objects.filter(user=request.user)
+
+        status_emojis = {
+            'pending': '🕘',
+            'confirmed': '✅',
+            'canceled': '❌',
+        }
+
+        events = []
+        for a in apps:
+            dt = datetime.combine(a.date, a.time)
+
+            emoji = status_emojis.get(a.status, '')
+            title = f"{emoji} {a.status.capitalize()}"  # ← no time here
+
+            events.append({
+                'id': a.id,
+                'title': title,
+                'start': dt.isoformat(),
+                'allDay': False,
+            })
+
+        return JsonResponse(events, safe=False)

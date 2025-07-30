@@ -2,21 +2,81 @@
 {% load django_bootstrap5 %}
 
 {% block content %}
-    <div class="container m-4 text-center col-6">
-        <h2>List of your Appointments</h2>
+<div class="container my-5">
 
-        {% for app in appointments %}
-          <div class="card text-start">
-            <div class="card-body">
-              <h4 class="card-title">Status: {{app.status}}</h4>
-              <p class="card-text">Date: {{app.date}}</p>
-              <p class="card-text">Time: {{app.time}}</p>
-              <p class="card-text">Detail: {{app.details}}</p>
+  <div class="text-center mb-4">
+    <h2 class="fw-bold">Your Appointments</h2>
+    <p class="text-muted">Below is a list of your upcoming appointments and a calendar view.</p>
+  </div>
 
-            </div>
-          </div>
+  <div class="mb-4 text-center">
+    <span class="badge bg-warning text-dark mx-2">🕘 Pending</span>
+    <span class="badge bg-success mx-2">✅ Confirmed</span>
+    <span class="badge bg-danger mx-2">❌ Canceled</span>
+  </div>
 
-        {% endfor %}
-
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      {% for app in appointments %}
+      <div class="card mb-3 border-start border-4
+        {% if app.status == 'pending' %} border-warning
+        {% elif app.status == 'confirmed' %} border-success
+        {% elif app.status == 'canceled' %} border-danger
+        {% endif %}">
+        <div class="card-body">
+          <h5 class="card-title">
+            {% if app.status == 'pending' %}
+              🕘 Pending
+            {% elif app.status == 'confirmed' %}
+              ✅ Confirmed
+            {% elif app.status == 'canceled' %}
+              ❌ Canceled
+            {% endif %}
+          </h5>
+          <p class="card-text"><strong>Date:</strong> {{ app.date }}</p>
+          <p class="card-text"><strong>Time:</strong> {{ app.time }}</p>
+          {% if app.details %}
+            <p class="card-text"><strong>Details:</strong> {{ app.details }}</p>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-muted text-center">You have no appointments yet.</p>
+      {% endfor %}
     </div>
+  </div>
+
+  <div class="card mt-5 shadow">
+    <div class="card-body">
+      <div id="calendar"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const calendarEl = document.getElementById("calendar");
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      headerToolbar: {
+        left: "prev,next today",
+        center: "title",
+        right: "dayGridMonth,dayGridWeek",
+      },
+      initialView: "dayGridMonth",
+      navLinks: true,
+      editable: false,
+      dayMaxEvents: true,
+      events: {
+        url: "{% url 'myApp:app_list_json' %}",
+        failure: function () {
+          alert("There was an error while fetching events!");
+        },
+      },
+    });
+
+    calendar.render();
+  });
+</script>
 {% endblock content %}
