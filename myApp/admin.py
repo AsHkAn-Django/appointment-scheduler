@@ -8,9 +8,9 @@ from users.forms import CustomUserCreationForm, CustomUserChangeForm
 
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
-    list_display = ['user', 'date', 'time', 'status', 'details']
+    list_display = ['user', 'date', 'hour', 'minute', 'status', 'details']
     ordering = ['status', 'date']
-    list_filter = ['user', 'date', 'time', 'status']
+    list_filter = ['user', 'date',  'hour', 'minute', 'status']
     search_fields = ['user', 'details']
 
 

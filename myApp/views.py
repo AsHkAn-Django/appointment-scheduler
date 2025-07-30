@@ -47,25 +47,14 @@ class AppointmentListJson(View):
             return JsonResponse([], safe=False)
 
         apps = Appointment.objects.filter(user=request.user)
-
-        status_emojis = {
-            'pending': '🕘',
-            'confirmed': '✅',
-            'canceled': '❌',
-        }
-
         events = []
         for a in apps:
             dt = datetime.combine(a.date, a.time)
-
-            emoji = status_emojis.get(a.status, '')
-            title = f"{emoji} {a.status.capitalize()}"  # ← no time here
-
+            title = f"{emoji} {a.status.capitalize()}"
             events.append({
                 'id': a.id,
                 'title': title,
                 'start': dt.isoformat(),
                 'allDay': False,
             })
-
         return JsonResponse(events, safe=False)
