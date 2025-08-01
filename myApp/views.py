@@ -78,3 +78,18 @@ def get_available_minutes(request):
     taken_minutes = (Appointment.objects.filter(date=date, hour=hour).values_list('minute', flat=True))
     available = [m for m in all_minutes if m not in taken_minutes]
     return JsonResponse(available, safe=False)
+
+
+def get_available_hours(request):
+    date = request.GET.get('date')
+    if not date:
+        return JsonResponse({'error': 'Missing date'}, status=400)
+
+    available_hours = [h for h in range(8, 17)]
+    filtered_hours = [
+        hour for hour in available_hours
+        if Appointment.objects.filter(date=date, hour=hour).count() < 5
+    ]
+    return JsonResponse(filtered_hours, safe=False)
+
+

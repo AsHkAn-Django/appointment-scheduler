@@ -54,6 +54,25 @@
     const dateInput = document.getElementById("id_date");
     const minuteSelect = document.getElementById("id_minute");
 
+    dateInput.addEventListener("change", function () {
+      const selectedDate = dateInput.value;
+
+      if (!selectedDate) return;
+
+      fetch(`/get-available-hours/?date=${selectedDate}`)
+        .then((response) => response.json())
+        .then((data) => {
+          hourSelect.innerHTML = "";
+          hourSelect.disabled = false;
+          data.forEach((hour) => {
+            const option = document.createElement("option");
+            option.value = hour;
+            option.textContent = hour.toString().padStart(2, "0");
+            hourSelect.appendChild(option);
+          });
+        });
+    });
+
     if (!hourSelect || !dateInput || !minuteSelect) {
       console.error(
         "One or more elements not found: #id_hour, #id_date, #id_minute"

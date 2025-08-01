@@ -19,3 +19,5 @@ class AppointmentForm(forms.ModelForm):
         # Set initial empty choices for minute
         self.fields['minute'].choices = []
         self.fields['minute'].widget.attrs['disabled'] = 'disabled'
+        self.fields['hour'].choices = []
+        self.fields['hour'].widget.attrs['disabled'] = 'disabled'
