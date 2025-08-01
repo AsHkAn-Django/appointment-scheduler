@@ -14,26 +14,21 @@ class IndexView(generic.TemplateView):
 
 class AppointmentFormView(LoginRequiredMixin, generic.CreateView):
     model = Appointment
-    template_name = "myApp/appointment_form.html"
     form_class = AppointmentForm
+    template_name = "myApp/appointment_form.html"
     success_url = reverse_lazy('myApp:home')
 
     def form_valid(self, form):
-        # Check if there is already an appointment at the same date and time for the user
+        # before saving, check for any existing ongoing appointment
         if Appointment.objects.filter(user=self.request.user, visited=False).exists():
-            messages.warning(self.request, 'You have already had an ongoing appointment!')
-            return redirect('myApp:home')
+            # add a non-field error and re-render the form
+            form.add_error(None, "You already have an ongoing appointment.")
+            return self.form_invalid(form)
 
-        # If no conflict, save the appointment and show a success message
+        # no conflict: attach user and save
         form.instance.user = self.request.user
-        messages.success(self.request, 'Your appointment has been reserved.')
+        messages.success(self.request, "Your appointment has been reserved.")
         return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        if Appointment.objects.filter(user=self.request.user, visited=False).exists():
-            ctx['appointment'] = Appointment.objects.filter(user=self.request.user, visited=False).first()
-        return ctx
 
 class AppointmentListView(generic.ListView):
     model = Appointment
@@ -55,7 +50,7 @@ class AppointmentListJson(View):
         for a in apps:
             events.append({
                 'id': a.id,
-                'title': a.details,
+                'title': f"Appointment at {a.get_time()}",
                 'start': a.date.isoformat(),
                 'allDay': False,
             })
