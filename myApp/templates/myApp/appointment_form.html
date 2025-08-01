@@ -7,23 +7,86 @@
     <div class="card-body">
       <h4 class="card-title">Appointment Exist!</h4>
       <p class="card-text">
-        You have an appointment on {{appointment.date}} at {{appointment.get_time}}.
+        You have an appointment on {{appointment.date}} at
+        {{appointment.get_time}}.
       </p>
     </div>
   </div>
   {% endif %}
 
-  <form action="" method="post">
-    {% csrf_token %} {% bootstrap_form form %}
-    <button type="submit" class="btn btn-primary">Take</button>
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="mb-3">
+      <label for="id_date">Date:</label>
+      {{ form.date }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_hour">Hour:</label>
+      {{ form.hour }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_minute">Minute:</label>
+      {{ form.minute }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_details">Details:</label>
+      {{ form.details }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Book Appointment</button>
   </form>
 </div>
 
 <!-- flatpickr CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+/>
 <!-- flatpickr JS -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const hourSelect = document.getElementById("id_hour");
+    const dateInput = document.getElementById("id_date");
+    const minuteSelect = document.getElementById("id_minute");
+
+    if (!hourSelect || !dateInput || !minuteSelect) {
+      console.error(
+        "One or more elements not found: #id_hour, #id_date, #id_minute"
+      );
+      return;
+    }
+
+    hourSelect.addEventListener("change", function () {
+      const selectedHour = hourSelect.value;
+      const selectedDate = dateInput.value;
+
+      if (!selectedHour || !selectedDate) return;
+
+      fetch(`/get-available-minutes/?hour=${selectedHour}&date=${selectedDate}`)
+        .then((response) => response.json())
+        .then((data) => {
+          // Clear old options
+          minuteSelect.innerHTML = "";
+          minuteSelect.disabled = false;
+
+          // Add new options
+          data.forEach((minute) => {
+            const option = document.createElement("option");
+            option.value = minute;
+            option.textContent = minute.toString().padStart(2, "0");
+            minuteSelect.appendChild(option);
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching minutes:", error);
+        });
+    });
+  });
   document.addEventListener("DOMContentLoaded", function () {
     flatpickr(".datepicker", {
       dateFormat: "Y-m-d",

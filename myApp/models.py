@@ -8,8 +8,8 @@ HOURS = [(h, h) for h in range(8, 17)]
 class Appointment(models.Model):
     '''A model for taking appointment.'''
     date = models.DateField()
-    hour = models.IntegerField(choices=HOURS, max_length=2)
-    minute = models.IntegerField(choices=MINUTES, max_length=2)
+    hour = models.IntegerField(choices=HOURS)
+    minute = models.IntegerField(choices=MINUTES)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='appointments', on_delete=models.CASCADE)
     details = models.TextField(blank=True, null=True)
     visited = models.BooleanField(default=False)
