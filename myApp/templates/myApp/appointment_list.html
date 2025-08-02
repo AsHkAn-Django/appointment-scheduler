@@ -24,6 +24,7 @@
           {% if app.details %}
             <p class="card-text"><strong>Details:</strong> {{ app.details }}</p>
           {% endif %}
+          <a href="{% url 'myApp:create_event' app.pk %}" class="btn btn-danger">Add to Google Calendar</a>
         </div>
       </div>
       {% empty %}

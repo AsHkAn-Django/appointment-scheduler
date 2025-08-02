@@ -12,6 +12,6 @@ urlpatterns = [
     path('get-available-hours/', views.get_available_hours, name='get_available_hours'),
     path('google-auth/', views.google_auth_init, name='google_auth_init'),
     path('oauth2callback/', views.google_auth_callback, name='google_auth_callback'),
-    path('create-event/', views.create_event, name='create_event'),
+    path('create-event/<int:pk>/', views.create_event, name='create_event'),
     path('', views.IndexView.as_view(), name='home'),
 ]

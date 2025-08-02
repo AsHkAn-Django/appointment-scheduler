@@ -1,5 +1,5 @@
 from django.urls import reverse_lazy
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
@@ -10,8 +10,9 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import Flow
 
-from .models import Appointment, Event
+from .models import Appointment
 from .forms import AppointmentForm
+from datetime import datetime, time, timedelta
 import os
 
 
@@ -142,27 +143,32 @@ def google_auth_callback(request):
     return redirect('myApp:create_event')
 
 
-def create_event(request):
+def create_event(request, pk):
     if 'credentials' not in request.session:
         return redirect('myApp:google_auth_init')
 
     creds = Credentials(**request.session['credentials'])
     service = build('calendar', 'v3', credentials=creds)
 
+    appointment = get_object_or_404(Appointment, pk=pk)
+
+    start_time = time(appointment.hour, appointment.minute)
+    start_datetime = datetime.combine(appointment.date, start_time)
+
+    end_datetime = start_datetime + timedelta(minutes=10)
+
     event = {
-        'summary': 'Test Appointment',
-        'location': 'Istanbul',
-        'description': 'Your appointment is confirmed.',
+        'summary': appointment.details or 'Test Appointment',
+        'description': appointment.details or 'A Test Appointment',
         'start': {
-            'dateTime': '2025-08-02T10:00:00+03:00',
+            'dateTime': start_datetime.isoformat(),
             'timeZone': 'Europe/Istanbul',
         },
         'end': {
-            'dateTime': '2025-08-02T11:00:00+03:00',
+            'dateTime': end_datetime.isoformat(),
             'timeZone': 'Europe/Istanbul',
         },
     }
 
     event_result = service.events().insert(calendarId='primary', body=event).execute()
-
     return render(request, 'myApp/event_success.html', {'event': event_result})

@@ -1,8 +1,13 @@
-{% extends 'base.html' %} {% block content %}
-<h1>Calendar Events</h1>
-<ul>
-  <h1>Event Created!</h1>
-  <p>Event ID: {{ event.id }}</p>
-  <a href="{{ event.htmlLink }}" target="_blank">View in Google Calendar</a>
-  {% endblock content %}
-</ul>
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow p-4 mx-auto" style="max-width: 600px;">
+    <h2 class="card-title mb-3 text-success">🎉 Event Created Successfully!</h2>
+    <p><strong>Event ID:</strong> {{ event.id }}</p>
+    <a href="{{ event.htmlLink }}" target="_blank" class="btn btn-primary mt-3">
+      View Event in Google Calendar
+    </a>
+  </div>
+</div>
+{% endblock content %}
