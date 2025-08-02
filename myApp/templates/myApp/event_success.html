@@ -1,0 +1,8 @@
+{% extends 'base.html' %} {% block content %}
+<h1>Calendar Events</h1>
+<ul>
+  <h1>Event Created!</h1>
+  <p>Event ID: {{ event.id }}</p>
+  <a href="{{ event.htmlLink }}" target="_blank">View in Google Calendar</a>
+  {% endblock content %}
+</ul>

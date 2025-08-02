@@ -9,11 +9,7 @@ class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
         fields = ['date', 'hour', 'minute', 'details']
-        widgets = {
-            'details': forms.Textarea(
-                attrs={'class': 'form-control'}
-            ),
-        }
+        widgets = {'details': forms.Textarea(attrs={'class': 'form-control'}),}
 
     def __init__(self, *args, **kwargs):
         # Extract 'user' from kwargs for later validation in clean()

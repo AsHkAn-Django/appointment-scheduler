@@ -22,3 +22,9 @@ class Appointment(models.Model):
 
     def get_time(self):
         return f"{self.hour}:{self.minute}"
+
+
+class Event(models.Model):
+    summary = models.CharField(max_length=250)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()

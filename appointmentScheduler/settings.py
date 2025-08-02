@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'django_bootstrap5',
+    'oauth2_provider',
 
     'myApp',
     'users',
@@ -134,3 +135,9 @@ AUTH_USER_MODEL = "users.CustomUser"
 LOGIN_REDIRECT_URL = "myApp:home"
 LOGOUT_REDIRECT_URL = "myApp:home"
 LOGIN_URL = "users:login"
+
+
+# Oauth2
+GOOGLE_CREDENTIALS_FILE = BASE_DIR / 'credentials.json'
+GOOGLE_SCOPES = ['https://www.googleapis.com/auth/calendar.events']
+GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/'

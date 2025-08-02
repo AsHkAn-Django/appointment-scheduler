@@ -1,11 +1,21 @@
 from django.urls import reverse_lazy
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
 from django.views import generic, View
-from .models import Appointment
-from .forms import AppointmentForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.conf import settings
+
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import Flow
+
+from .models import Appointment, Event
+from .forms import AppointmentForm
+import os
+
+
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 
 class IndexView(generic.TemplateView):
@@ -88,3 +98,71 @@ def get_available_hours(request):
     return JsonResponse(filtered_hours, safe=False)
 
 
+
+def google_auth_init(request):
+    flow = Flow.from_client_secrets_file(
+        str(settings.GOOGLE_CREDENTIALS_FILE),  # use absolute path from settings
+        scopes=settings.GOOGLE_SCOPES,
+        redirect_uri=settings.GOOGLE_REDIRECT_URI  # keep redirect URI consistent
+    )
+    authorization_url, state = flow.authorization_url(
+        access_type='offline',
+        include_granted_scopes='true'
+    )
+    request.session['state'] = state
+    request.session.save()  # Ensure session saved before redirect
+    return redirect(authorization_url)
+
+
+def google_auth_callback(request):
+    state = request.session.get('state')
+    if not state:
+        return HttpResponseBadRequest("Session expired or invalid state. Please start the authentication process again.")
+
+    flow = Flow.from_client_secrets_file(
+        str(settings.GOOGLE_CREDENTIALS_FILE),
+        scopes=settings.GOOGLE_SCOPES,
+        state=state,
+        redirect_uri=settings.GOOGLE_REDIRECT_URI
+    )
+    flow.fetch_token(authorization_response=request.build_absolute_uri())
+
+    credentials = flow.credentials
+
+    # Store credentials in session or preferably database (demo: session)
+    request.session['credentials'] = {
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes
+    }
+    request.session.save()
+    return redirect('myApp:create_event')
+
+
+def create_event(request):
+    if 'credentials' not in request.session:
+        return redirect('myApp:google_auth_init')
+
+    creds = Credentials(**request.session['credentials'])
+    service = build('calendar', 'v3', credentials=creds)
+
+    event = {
+        'summary': 'Test Appointment',
+        'location': 'Istanbul',
+        'description': 'Your appointment is confirmed.',
+        'start': {
+            'dateTime': '2025-08-02T10:00:00+03:00',
+            'timeZone': 'Europe/Istanbul',
+        },
+        'end': {
+            'dateTime': '2025-08-02T11:00:00+03:00',
+            'timeZone': 'Europe/Istanbul',
+        },
+    }
+
+    event_result = service.events().insert(calendarId='primary', body=event).execute()
+
+    return render(request, 'myApp/event_success.html', {'event': event_result})
