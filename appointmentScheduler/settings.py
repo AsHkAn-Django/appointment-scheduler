@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 
     'django_bootstrap5',
     'oauth2_provider',
+    'django_celery_beat',
 
     'myApp',
     'users',
@@ -141,3 +142,17 @@ LOGIN_URL = "users:login"
 GOOGLE_CREDENTIALS_FILE = BASE_DIR / 'credentials.json'
 GOOGLE_SCOPES = ['https://www.googleapis.com/auth/calendar.events']
 GOOGLE_REDIRECT_URI = 'http://localhost:8000/oauth2callback/'
+
+
+# Use Redis as broker and backend
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+
+# Email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
