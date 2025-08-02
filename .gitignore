@@ -9,7 +9,7 @@ migrations/
 dump.rdb
 dump.json
 credentials.json
-
+appointment-scheduler.git/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
